@@ -1,17 +1,24 @@
-(define (domain car_wash)   
+(define (domain recharging-robots)
     (:requirements :strips :typing :adl :action-costs)
     
+    ;; Type hierarchy definition
+    ;; vehicle types
     (:types
         vehicle - object
         small_car big_car moto - vehicle
         
+        ;; resource types
         resource - object
         water soap wax - resource
+        
+        ;; level types for tracking resource amounts
         water_level soap_level wax_level - object
         
+        ;; location types
         location - object
         station entrance exit - location
         
+        ;; cleaning program types
         program - object
         fast basic premium moto_prog - program
     )

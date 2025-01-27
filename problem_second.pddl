@@ -1,5 +1,5 @@
 (define (problem car-wash-problem1)
-    (:domain car_wash)
+    (:domain recharging-robots)
     
     (:objects
         ; Vehicles
