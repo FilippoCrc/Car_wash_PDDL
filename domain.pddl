@@ -3,142 +3,249 @@
 (:types
     
     vehicle -object
-    small_car
-)
+    small_car -vehicle
+    big_car -vehicle
+    moto -vehicle
 
-•(vehicle_at ?v - vehicle ?s - station) TRUE if a vehicle is at a certain station
-•(free_vehicle ?v – vehicle) TRUE if a vehicle is free
-•(station_available ?s - station) TRUE if a cleaning station is available for use
-•(has_resources ?s - station ?r - resource) TRUE if a station has sufficient resources
-•(program_compatibility ?p - program ?v - vehicle) TRUE if a cleaning program is compatible with a vehicle type
-•(program_selected ?p - program ?v – vehicle) TRUE if a cleaning program is selected and compatible with a vehicle type
-•(cleaning_started?v - vehicle ?s - station) TRUE if a vehicle is being cleaned at a station
-•(resource_need_refil ?s – station ?r - resource) TRUE if a station needs maintenance
-•(station_ready ?s – station ?r –resource ?r –resource ?r –resource) TRUE if a station has all the resource available
+    resource -object
+    water -resource
+    soap - resource
+    wax -resource
+
+    water_level -object
+    soap_level -object
+    wax_level -object
+
+    location -object
+    station -location
+    entrance -location
+    exit -location
+
+    program -object
+    fast - program
+    basic -program
+    premium -program
+    moto_prog -program
+)
 
 (:predicates
-    ;; ?f1 is predecessor of ?f2 in the battery level, i.e., ?f2 = ?f1 + 1
-    (BATTERY-PREDECESSOR ?f1 - battery-level ?f2 - battery-level)
-    ;; Two locations are connected in the graph of locations
+    ;; v is the kind of vehicle, l is the kind of location, TRUE if the vehicle is at that location
+    (VEHICLE-AT ?v - vehicle ?l - location)
+
+    ;; TRUE if a vehicle v is free
+    ;;(FREE-VEHICLE ?v - vehicle)
+
+    ;;TRUE if a location l is free 
+    (FREE-LOCATION ?l -object)
+
+    ;;TRUE if a cleaning program is compatible with a vehicle type
+    (STATION-COMPATIBILITY ?p - program ?v - vehicle) 
+
+    ;;TRUE if a vehicle is being cleaned at a station
+    (CLEANING-STARTED ?v - vehicle ?s - station)
+
+    ;;TRUE if a station needs maintenance
+    (RESOURCE-NEED-REFILL ?s – station ?r - resource)
+
+     ;; Track resource levels at stations
+    (HAS-RESOURCE-LEVEL ?s - station ?r - resource ?level - number)
+    
+    ;; Track if a station has the resource installed
+    (STATION-HAS-RESOURCE ?s - station ?r - resource)
+
+    ;; Track if a station has the resource installed
     (CONNECTED ?l1 - location ?l2 - location)
-    ;; Definition of a guarding configuration, i.e., one atom per location
-    ;; in each configuration
-    (GUARD-CONFIG ?c - config ?l - location)
-    ;; Robot is located at the given location
-    (at ?r - robot ?l - location)
-    ;; The remaining battery of the robot
-    (battery ?r - robot ?f - battery-level)
-    ;; Robot stopped and is guarding all locations connected to the
-    ;; location where robot is located
-    (stopped ?r - robot)
-    ;; Location ?l is guarded by at least one robot
-    (guarded ?l - location)
-    ;; Configuration is fullfilled, i.e., all of its locations were guarded
-    ;; at some point.
-    (config-fullfilled ?c - config)
+
+
 )
+
 
 (:functions
     (move-cost) - number
-    (recharge-cost) - number
-    (total-cost) - number
+    (refill-cost) - number
+    (time-cost ?p - program) - number       ; Now takes a program parameter
+    (total-cost) - number                ; Total cost of the plan
+    (total-time-cost)                       ; Total time cost of the plan
 )
 
-;; Move the robot ?r from the location ?from to the location ?to while
-;; consuming the battery -- it is decreased by one from ?fpre to ?fpost
+;; Move the vehicle ?v from the location ?from to the location ?to 
 (:action move
-    :parameters (?r - robot ?from - location ?to - location
-                 ?fpre - battery-level ?fpost - battery-level)
+    :parameters (?v - vehicle ?from - location ?to - location)
     :precondition
         (and
-            (not (stopped ?r))
-            (at ?r ?from)
-            (battery ?r ?fpre)
-            (BATTERY-PREDECESSOR ?fpost ?fpre)
+            (VEHICLE-AT ?v ?from)
+            (FREE-LOCATION ?to)
             (or (CONNECTED ?from ?to) (CONNECTED ?to ?from))
         )
     :effect
         (and
-            (not (at ?r ?from))
-            (at ?r ?to)
-            (not (battery ?r ?fpre))
-            (battery ?r ?fpost)
+            (not (VEHICLE-AT ?v ?from))
+            (VEHICLE-AT ?v ?to)
+            (not ((FREE-LOCATION ?to)))
+            (FREE-LOCATION ?from)
             (increase (total-cost) (move-cost))
         )
 )
 
-;; Recharge robot ?rto at location ?loc by transfering one unit of battery
-;; charge from the robot ?rfrom
-(:action recharge
-    :parameters (?rfrom - robot ?rto - robot ?loc - location
-                 ?fpre-from - battery-level ?fpost-from - battery-level
-                 ?fpre-to - battery-level ?fpost-to - battery-level)
+(:action start-premium-cleaning
+    :parameters 
+        (?v - vehicle ?s - station ?p - program)
     :precondition
-        (and
-            (not (= ?rfrom ?rto))
-            (at ?rfrom ?loc)
-            (at ?rto ?loc)
-            (battery ?rfrom ?fpre-from)
-            (battery ?rto ?fpre-to)
-            (BATTERY-PREDECESSOR ?fpost-from ?fpre-from)
-            (BATTERY-PREDECESSOR ?fpre-to ?fpost-to)
-        )
-    :effect
-        (and
-            (not (battery ?rfrom ?fpre-from))
-            (battery ?rfrom ?fpost-from)
-            (not (battery ?rto ?fpre-to))
-            (battery ?rto ?fpost-to)
-            (increase (total-cost) (recharge-cost))
-        )
-)
-
-;; Stop the robot at its current location and guard the neighborhood.
-;; Once the robot stopped it can move again only when the configuration is
-;; fullfilled, i.e., stopping too early can result in a dead-end.
-;; Note that the conditional effect can be compiled away without blow-up,
-;; because it is conditioned on a static predicates.
-(:action stop-and-guard
-    :parameters (?r - robot ?l - location)
-    :precondition
-        (and
-            (not (stopped ?r))
-            (at ?r ?l)
-        )
-    :effect
-        (and
-            (stopped ?r)
-            (guarded ?l)
-            (forall (?l2 - location)
-                (when (or (CONNECTED ?l ?l2) (CONNECTED ?l2 ?l))
-                      (guarded ?l2)
-                )
+        (and 
+            (STATION-COMPATIBILITY premium ?v)
+            (VEHICLE-AT ?v ?s)
+            (STATION-HAS-RESOURCE ?s water)
+            (STATION-HAS-RESOURCE ?s soap)
+            (STATION-HAS-RESOURCE ?s wax)
+            
+            ;; Resource level checks - can vary by vehicle type
+            (or 
+                ;; Small car requirements
+                (and 
+                    (small_car ?v)
+                    (>= (HAS-RESOURCE-LEVEL ?s water) 3)
+                    (>= (HAS-RESOURCE-LEVEL ?s soap) 2)
+                    (>= (HAS-RESOURCE-LEVEL ?s wax) 1))
+                ;; Big car requirements
+                (and 
+                    (big_car ?v)
+                    (>= (HAS-RESOURCE-LEVEL ?s water) 4)
+                    (>= (HAS-RESOURCE-LEVEL ?s soap) 3)
+                    (>= (HAS-RESOURCE-LEVEL ?s wax) 2))
+                ;; Moto requirements
+                (and 
+                    (moto ?v)
+                    (>= (HAS-RESOURCE-LEVEL ?s water) 2)
+                    (>= (HAS-RESOURCE-LEVEL ?s soap) 1)
             )
         )
+    :effect 
+        (and 
+            (CLEANING-STARTED ?v ?s)
+            (OCCUPIED-STATION ?s)
+            ;; Resource consumption based on vehicle type
+            (when (small_car ?v)
+                (and 
+                    (decrease (HAS-RESOURCE-LEVEL ?s water) 3)
+                    (decrease (HAS-RESOURCE-LEVEL ?s soap) 2)
+                    (decrease (HAS-RESOURCE-LEVEL ?s wax) 1)))
+            (when (big_car ?v)
+                (and 
+                    (decrease (HAS-RESOURCE-LEVEL ?s water) 4)
+                    (decrease (HAS-RESOURCE-LEVEL ?s soap) 3)
+                    (decrease (HAS-RESOURCE-LEVEL ?s wax) 2)))
+            (when (moto ?v)
+                (and 
+                    (decrease (HAS-RESOURCE-LEVEL ?s water) 2)
+                    (decrease (HAS-RESOURCE-LEVEL ?s soap) 1)
+            (increase (total-time-cost) (time-cost ?p))
+        )
 )
 
-;; Verify that the given configuration is fullfilled, i.e., robots guard
-;; all locations from the configuration.
-;; Note that this action unblocks all robots whether they participate in
-;; guarding of the configuration or not. This simplifies the model because
-;; otherwise, we would need to keep track of what location is guarded by
-;; which robot (it can be guarded by multiple ones).
-;; Also note the precondition does not have to inccur exponential blow-up
-;; because the imply condition is conditioned on a static predicate.
-(:action verify-guard-config
-    :parameters (?c - config)
+(:action start-basic-cleaning
+    :parameters 
+        (?v - vehicle ?s - station ?p - program)
     :precondition
-        (and
-            (forall (?l - location)
-                (imply (GUARD-CONFIG ?c ?l) (guarded ?l))
+        (and 
+            (STATION-COMPATIBILITY basic ?v)
+            (VEHICLE-AT ?v ?s)
+            (STATION-HAS-RESOURCE ?s water)
+            (STATION-HAS-RESOURCE ?s soap)
+            
+            ;; Resource level checks - can vary by vehicle type
+            (or 
+                ;; Small car requirements
+                (and 
+                    (small_car ?v)
+                    (>= (HAS-RESOURCE-LEVEL ?s water) 2)
+                    (>= (HAS-RESOURCE-LEVEL ?s soap) 1)
+                ;; Big car requirements
+                (and 
+                    (big_car ?v)
+                    (>= (HAS-RESOURCE-LEVEL ?s water) 3)
+                    (>= (HAS-RESOURCE-LEVEL ?s soap) 2)
+                ;; Moto requirements
+                (and 
+                    (moto ?v)
+                    (>= (HAS-RESOURCE-LEVEL ?s water) 1)
+                    (>= (HAS-RESOURCE-LEVEL ?s soap) 1)
             )
         )
-    :effect
-        (and
-            (forall (?r - robot) (not (stopped ?r)))
-            (forall (?l - location) (not (guarded ?l)))
-            (config-fullfilled ?c)
-        )
+    :effect 
+        (and 
+            (CLEANING-STARTED ?v ?s)
+            ;; Resource consumption based on vehicle type
+            (when (small_car ?v)
+                (and 
+                    (decrease (HAS-RESOURCE-LEVEL ?s water) 3)
+                    (decrease (HAS-RESOURCE-LEVEL ?s soap) 2)
+            (when (big_car ?v)
+                (and 
+                    (decrease (HAS-RESOURCE-LEVEL ?s water) 4)
+                    (decrease (HAS-RESOURCE-LEVEL ?s soap) 3)
+            (when (moto ?v)
+                (and 
+                    (decrease (HAS-RESOURCE-LEVEL ?s water) 1)
+                    (decrease (HAS-RESOURCE-LEVEL ?s soap) 1)
+            (increase (total-time-cost) (time-cost ?p))
+        )
 )
 
+(:action start-fast-cleaning
+    :parameters 
+        (?v - vehicle ?s - station ?p - program)
+    :precondition
+        (and 
+            (STATION-COMPATIBILITY basic ?v)
+            (VEHICLE-AT ?v ?s)
+            (STATION-HAS-RESOURCE ?s water)
+            
+            ;; Resource level checks - can vary by vehicle type
+            (or 
+                ;; Small car requirements
+                (and 
+                    (small_car ?v)
+                    (>= (HAS-RESOURCE-LEVEL ?s water) 1)
+                ;; Big car requirements
+                (and 
+                    (big_car ?v)
+                    (>= (HAS-RESOURCE-LEVEL ?s water) 2)
+                ;; Moto requirements
+                (and 
+                    (moto ?v)
+                    (>= (HAS-RESOURCE-LEVEL ?s water) 1)
+            )
+        )
+    :effect 
+        (and 
+            (CLEANING-STARTED ?v ?s)
+            ;; Resource consumption based on vehicle type
+            (when (small_car ?v)
+                (and 
+                    (decrease (HAS-RESOURCE-LEVEL ?s water) 1)
+            (when (big_car ?v)
+                (and 
+                    (decrease (HAS-RESOURCE-LEVEL ?s water) 2)
+            (when (moto ?v)
+                (and 
+                    (decrease (HAS-RESOURCE-LEVEL ?s water) 1)
+            (increase (total-time-cost) (time-cost ?p))
+        )
 )
+
+(:action refill
+    :parameters 
+        (?s - station ?r - resource)
+    :precondition
+        (and 
+            (RESOURCE-NEED-REFILL ?s ?r)
+            (STATION-HAS-RESOURCE ?s ?r)
+        )
+    :effect 
+        (and 
+            (increase (HAS-RESOURCE-LEVEL ?s ?r) 2)
+            (increase (total-cost) (refill-cost))
+        )
+)
+)
+
