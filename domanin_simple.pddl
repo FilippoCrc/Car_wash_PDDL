@@ -38,7 +38,6 @@
         (RESOURCE-NEED-REFILL ?s - station ?r - resource)
         
         ;; Tracks resource levels at stations
-        (HAS-RESOURCE-LEVEL ?s - station ?r - resource)
         
         ;; Tracks which resources are installed at which stations
         (STATION-HAS-RESOURCE ?s - station ?r - resource)
@@ -53,6 +52,7 @@
         (refill-cost) - number
         (time-cost ?p - program) - number
         (total-cost) - number
+        (HAS-RESOURCE-LEVEL ?s - station ?r - resource) - number 
     )
 
     ;; Action for moving vehicles between locations
@@ -74,21 +74,23 @@
             )
     )
 
-    ;; Action for premium cleaning program
+    ;; Action for fast cleaning program
     (:action start-fast-cleaning
-        :parameters (?v - vehicle ?s - station ?p - program 
-                    ?wpre - water_level ?wpost - water_level )
+        :parameters (?v - vehicle ?s - station ?p - programs)  ; Removed water level parameters
         :precondition
-            (and (STATION-COMPATIBILITY fast ?s) (VEHICLE-AT ?v ?s) (STATION-HAS-RESOURCE ?s station ?wpre water)
-                 (small_car ?v) (>= (HAS-RESOURCE-LEVEL ?s station ?wpre water) 3)
+            (and 
+                (STATION-COMPATIBILITY ?p ?s)
+                (VEHICLE-AT ?v ?s)
+                (STATION-HAS-RESOURCE ?s water1)  ; Changed to directly check for water resource
+                (>= (HAS-RESOURCE-LEVEL ?s water1) 3)  ; Directly check the water level
             )
         :effect 
             (and 
                 (CLEANING-STARTED ?v ?s)
-                (decrease (HAS-RESOURCE-LEVEL ?s station ?wpre water) 3)
+                (decrease (HAS-RESOURCE-LEVEL ?s water1) 3)
                 (increase (total-cost) (time-cost ?p))
             )
-    )
+)
 
     ;; Action for refilling resources
     (:action refill
