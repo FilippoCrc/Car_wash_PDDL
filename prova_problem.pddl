@@ -45,13 +45,14 @@
         
         ; Program compatibility
 
-        (STATION-COMPATIBILITY fast1 station1)
+        ;(STATION-COMPATIBILITY fast1 station1)
 
     )
     
     (:goal
         (and
             ; Goal: All vehicles should be cleaned and at exits
+            ;(>= (HAS-RESOURCE-LEVEL station1 water1) 100)
             (CLEANING-STARTED car1 station1)
             (VEHICLE-AT car1 exit1)
         )

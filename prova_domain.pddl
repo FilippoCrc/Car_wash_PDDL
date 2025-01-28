@@ -4,20 +4,15 @@
     (:types
         vehicle - object
         small_car - vehicle
-        ;big_car moto - vehicle
         
         resource - object
         water - resource
-        ;soap wax - resource
-        water_level - object
-        ;soap_level wax_level - object
         
         location - object
         station entrance exit - location
         
         program - object
         fast - program
-        ;basic premium moto_prog - program
     )
 
     ;; Predicate definitions for representing the state of the world
@@ -39,6 +34,10 @@
         
         ;; Tracks station connections
         (CONNECTED ?l1 - location ?l2 - location)
+        
+        (SMALL-CAR ?v - small_car)
+        
+        (BIG-CAR ?v)
     )
 
     ;; Function definitions for cost tracking
@@ -47,7 +46,7 @@
         (refill-cost) - number
         (time-cost ?p - program) - number
         (total-cost) - number
-        (HAS-RESOURCE-LEVEL ?s - station ?r - resource) - number 
+        (HAS-RESOURCE-LEVEL ?s - station ?w -water) - number 
     )
 
     ;; Action for moving vehicles between locations
@@ -71,24 +70,25 @@
 
     ;; Action for fast cleaning program
     (:action start-fast-cleaning
-        :parameters (?v - vehicle ?s - station ?p - fast ?r -water)
+        :parameters (?v - small_car ?s - station ?p - fast ?r - water)
         :precondition
             (and 
                 (VEHICLE-AT ?v ?s)
+                (SMALL-CAR ?v)
                 (STATION-HAS-RESOURCE ?s ?r)
                 (>= (HAS-RESOURCE-LEVEL ?s ?r) 3)
             )
         :effect 
             (and 
                 (CLEANING-STARTED ?v ?s)
-                (decrease (HAS-RESOURCE-LEVEL ?s ?r) 3)
+                ;(decrease (HAS-RESOURCE-LEVEL ?s ?r) 3)
                 (increase (total-cost) (time-cost ?p))
             )
 )
 
     ;; Action for refilling resources
     (:action refill
-        :parameters (?s - station ?r - resource)
+        :parameters (?s - station ?r - water)
         :precondition
             (STATION-HAS-RESOURCE ?s ?r)
         :effect 

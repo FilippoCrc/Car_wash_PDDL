@@ -37,7 +37,7 @@
         (STATION-HAS-RESOURCE station1 water1)
         
         ; Initial resource levels
-        (= (HAS-RESOURCE-LEVEL station1 water1) 0)
+        (= (HAS-RESOURCE-LEVEL station1 water1) 1)
         
         ; Location connections
         (CONNECTED entrance1 station1)
@@ -45,7 +45,7 @@
         
         ; Program compatibility
 
-        (STATION-COMPATIBILITY fast1 station1)
+        ;(STATION-COMPATIBILITY fast1 station1)
 
     )
     
