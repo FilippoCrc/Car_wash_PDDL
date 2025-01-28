@@ -24,8 +24,8 @@
         ;; Tracks if a location is available
         (FREE-LOCATION ?l - location)
         
-        ;; Tracks which programs can be used with which vehicles
-        (STATION-COMPATIBILITY ?p - program ?v - vehicle)
+        ;; Tracks which programs can be run on the station
+        (STATION-COMPATIBILITY ?p - program ?s - station)
         
         ;; Tracks if a vehicle has started cleaning at a station
         (CLEANING-STARTED ?v - vehicle ?s - station)
@@ -49,7 +49,6 @@
         (refill-cost) - number
         (time-cost ?p - program) - number
         (total-cost) - number
-        (total-time-cost) - number
     )
 
     ;; Action for moving vehicles between locations
@@ -73,34 +72,37 @@
 
     ;; Action for premium cleaning program
     (:action start-premium-cleaning
-        :parameters (?v - vehicle ?s - station ?p - program)
+        :parameters (?v - vehicle ?s - station ?p - program 
+                    ?wpre - water_level ?wpost - water_level 
+                    ?spre - soap_level ?spost - soap_level 
+                    ?waxpre - wax_level ?waxpost - wax_level)
         :precondition
             (and 
-                (STATION-COMPATIBILITY premium ?v)
+                (STATION-COMPATIBILITY premium ?s)
                 (VEHICLE-AT ?v ?s)
-                (STATION-HAS-RESOURCE ?s water)
-                (STATION-HAS-RESOURCE ?s soap)
-                (STATION-HAS-RESOURCE ?s wax)
+                (STATION-HAS-RESOURCE ?s station ?wpre water)
+                (STATION-HAS-RESOURCE ?s station ?spre soap)
+                (STATION-HAS-RESOURCE ?s station ?waxpre wax)
                 (or 
                     ;; Small car requirements
                     (and 
                         (small_car ?v)
-                        (>= (HAS-RESOURCE-LEVEL ?s water) 3)
-                        (>= (HAS-RESOURCE-LEVEL ?s soap) 2)
-                        (>= (HAS-RESOURCE-LEVEL ?s wax) 1)
+                        (>= (HAS-RESOURCE-LEVEL ?s station ?wpre water) 3)
+                        (>= (HAS-RESOURCE-LEVEL ?s station ?spre soap) 2)
+                        (>= (HAS-RESOURCE-LEVEL ?s station ?waxpre wax) 1)
                     )
                     ;; Big car requirements
                     (and 
                         (big_car ?v)
-                        (>= (HAS-RESOURCE-LEVEL ?s water) 4)
-                        (>= (HAS-RESOURCE-LEVEL ?s soap) 3)
-                        (>= (HAS-RESOURCE-LEVEL ?s wax) 2)
+                        (>= (HAS-RESOURCE-LEVEL ?s station ?wpre water) 4)
+                        (>= (HAS-RESOURCE-LEVEL ?s station ?spre soap) 3)
+                        (>= (HAS-RESOURCE-LEVEL ?s station ?waxpre wax) 2)
                     )
                     ;; Moto requirements
                     (and 
                         (moto ?v)
-                        (>= (HAS-RESOURCE-LEVEL ?s water) 2)
-                        (>= (HAS-RESOURCE-LEVEL ?s soap) 1)
+                        (>= (HAS-RESOURCE-LEVEL ?s station ?wpre water) 2)
+                        (>= (HAS-RESOURCE-LEVEL ?s station ?spre soap) 1)
                     )
                 )
             )
@@ -110,25 +112,25 @@
                 ;; Resource consumption based on vehicle type
                 (when (small_car ?v)
                     (and 
-                        (decrease (HAS-RESOURCE-LEVEL ?s water) 3)
-                        (decrease (HAS-RESOURCE-LEVEL ?s soap) 2)
-                        (decrease (HAS-RESOURCE-LEVEL ?s wax) 1)
+                        (decrease (HAS-RESOURCE-LEVEL ?s station ?wpre water) 3)
+                        (decrease (HAS-RESOURCE-LEVEL ?s station ?spre soap) 2)
+                        (decrease (HAS-RESOURCE-LEVEL ?s station ?waxpre wax) 1)
                     )
                 )
                 (when (big_car ?v)
                     (and 
-                        (decrease (HAS-RESOURCE-LEVEL ?s water) 4)
-                        (decrease (HAS-RESOURCE-LEVEL ?s soap) 3)
-                        (decrease (HAS-RESOURCE-LEVEL ?s wax) 2)
+                        (decrease (HAS-RESOURCE-LEVEL ?s station ?wpre water) 4)
+                        (decrease (HAS-RESOURCE-LEVEL ?s station ?spre soap) 3)
+                        (decrease (HAS-RESOURCE-LEVEL ?s station ?waxpre wax) 2)
                     )
                 )
                 (when (moto ?v)
                     (and 
-                        (decrease (HAS-RESOURCE-LEVEL ?s water) 2)
-                        (decrease (HAS-RESOURCE-LEVEL ?s soap) 1)
+                        (decrease (HAS-RESOURCE-LEVEL ?s station ?wpre water) 2)
+                        (decrease (HAS-RESOURCE-LEVEL ?s station ?spre soap) 1)
                     )
                 )
-                (increase (total-time-cost) (time-cost ?p))
+                (increase (total-cost) (time-cost ?p))
             )
     )
 
@@ -183,7 +185,7 @@
                         (decrease (HAS-RESOURCE-LEVEL ?s soap) 1)
                     )
                 )
-                (increase (total-time-cost) (time-cost ?p))
+                (increase (total-cost) (time-cost ?p))
             )
     )
 
@@ -225,7 +227,7 @@
                 (when (moto ?v)
                     (decrease (HAS-RESOURCE-LEVEL ?s water) 1)
                 )
-                (increase (total-time-cost) (time-cost ?p))
+                (increase (total-cost) (time-cost ?p))
             )
     )
 
