@@ -57,5 +57,5 @@
         )
     )
     
-    (:metric minimize (total-cost) (time-cost))
+    (:metric minimize (total-cost))
 )

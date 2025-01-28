@@ -76,7 +76,7 @@
 
     ;; Action for fast cleaning program
     (:action start-fast-cleaning
-        :parameters (?v - vehicle ?s - station ?p - programs)  ; Removed water level parameters
+        :parameters (?v - vehicle ?s - station ?p - program)  ; Removed water level parameters
         :precondition
             (and 
                 (STATION-COMPATIBILITY ?p ?s)
