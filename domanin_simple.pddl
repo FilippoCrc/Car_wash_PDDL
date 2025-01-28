@@ -1,5 +1,5 @@
 (define (domain car_wash)   
-    (:requirements :strips :typing :adl :action-costs)
+    (:requirements :strips :typing :adl :action-costs:numeric-fluents)
     
     (:types
         vehicle - object
@@ -31,8 +31,7 @@
         ;; Tracks if a vehicle has started cleaning at a station
         (CLEANING-STARTED ?v - vehicle ?s - station)
         
-        ;; Tracks if a resource needs refilling at a station
-        (RESOURCE-NEED-REFILL ?s - station ?r - resource)
+       
 
         ;; Tracks which resources are installed at which stations
         (STATION-HAS-RESOURCE ?s - station ?r - resource)
