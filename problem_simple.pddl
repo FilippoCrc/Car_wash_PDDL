@@ -1,5 +1,5 @@
-(define (problem car-wash-problem1)
-    (:domain car_wash)
+(define (problem car-wash-simple)
+    (:domain car_wash_simple)
     
     (:objects
         ; Vehicles
@@ -34,25 +34,21 @@
         (FREE-LOCATION station1)
         
         ; Station resource installations
-        (STATION-HAS-RESOURCE station1 water1)
+        (STATION-HAS-WATER station1 water1)
         
         ; Initial resource levels
-        (= (HAS-RESOURCE-LEVEL station1 water1) 1)
+        (= (HAS-RESOURCE-LEVEL-WATER station1 water1) 1)
         
         ; Location connections
         (CONNECTED entrance1 station1)
         (CONNECTED station1 exit1)
-        
-        ; Program compatibility
-
-        ;(STATION-COMPATIBILITY fast1 station1)
 
     )
     
     (:goal
         (and
             ; Goal: All vehicles should be cleaned and at exits
-            (CLEANING-STARTED car1 station1)
+            (CLEANING-DONE car1 fast1)
             (VEHICLE-AT car1 exit1)
         )
     )
