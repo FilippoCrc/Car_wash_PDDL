@@ -9,9 +9,7 @@
         
         ; Locations
         entrance1 - entrance
-        exit1 - exit
-        exit2 - exit
-        exit3 - exit
+        exit1  - exit
         station1 - station
         station2 - station
 
@@ -51,11 +49,9 @@
         
         ; Initial free locations
         (FREE-LOCATION exit1)
-        (FREE-LOCATION exit2)
-        (FREE-LOCATION exit3)
         (FREE-LOCATION station1)
         (FREE-LOCATION station2)
-        
+    
         ; Station resource installations
         (STATION-HAS-WATER station1 water1)
         (STATION-HAS-SOAP station1 soap1)
@@ -72,16 +68,14 @@
         (= (HAS-RESOURCE-LEVEL-WATER station2 water1) 0)
         (= (HAS-RESOURCE-LEVEL-SOAP station2 soap1) 0)
         
+        (CAN-BE-REFILLED station1)
+        (CAN-BE-REFILLED station2)
+        
         ; Location connections
         (CONNECTED entrance1 station1)
         (CONNECTED entrance1 station2)
         (CONNECTED station1 exit1)
-        (CONNECTED station1 exit2)
-        (CONNECTED station1 exit3)
-        
         (CONNECTED station2 exit1)
-        (CONNECTED station2 exit2)
-        (CONNECTED station2 exit3)
         
         ; Program compatibility
 
@@ -97,13 +91,10 @@
     
     (:goal
         (and
-            ; Goal: All vehicles should be cleaned and at exits
-            (CLEANING-DONE car1 premium1)
-            (CLEANING-DONE big_car1 fast1)
-            (CLEANING-DONE car2 basic1)
-            (VEHICLE-AT car1 exit1)
-            (VEHICLE-AT big_car1 exit2)
-            (VEHICLE-AT car2 exit3)
+            ; Goal: All vehicles ready
+            (VEHICLE-READY car1 premium1)
+            (VEHICLE-READY car2 basic1)
+            (VEHICLE-READY big_car1 fast1)
         )
     )
     

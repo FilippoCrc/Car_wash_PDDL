@@ -3,14 +3,14 @@
     
     (:types
         vehicle - object
-        small_car big_car moto - vehicle
+        small_car - vehicle
+        big_car - vehicle
         
         resource - object
         water soap wax - resource
         
         location - object
-        station entrance exit interior - location
-        ;intstation - station
+        station entrance exit - location
         
         program - object
         fast basic premium - program
@@ -48,24 +48,12 @@
         ;; TRUE if the vehicle is a big car
         (BIG-CAR ?v - big_car)
         
-        ;; TRUE if the vehicle is a big car
-        (MOTO ?v - moto)
-        
         ;; PREDICATE RELATED TO THE EXPERIMENT MOVE ACTION
         (EXIT ?to - exit)
         
-        ;; TRUE if the station can be reffiled
         (CAN-BE-REFILLED ?s - station)
         
-        ;; TRUE if the vehicle is finished
         (VEHICLE-READY ?v - vehicle ?p - program)
-        
-        ;; TRUE if the interior clean has been done
-        (INTERIOR-CLEAN ?v - vehicle)
-        
-        (VEHICLE-READY-INT ?v - vehicle ?p - program)
-        
-        (INTERIOR ?s - interior)
 
     )
 
@@ -73,7 +61,6 @@
     (:functions
         (move-cost) - number
         (refill-cost) - number
-        (interior-cost) - number 
         (time-cost ?p - program) - number
         (total-cost) - number
         (HAS-RESOURCE-LEVEL-WATER ?s - station ?w - water) - number
@@ -97,14 +84,14 @@
                 (VEHICLE-AT ?v ?to)
                 (FREE-LOCATION ?from)
                 (not(FREE-LOCATION ?to))
-                ;(when (EXIT ?to)
-                ;    (and
-                ;        (not (VEHICLE-AT ?v ?from))
-                ;        (VEHICLE-AT ?v ?to)
-                ;        (FREE-LOCATION ?from)
-                ;        (FREE-LOCATION ?to)
-                ;    )
-                ;)
+                (when (EXIT ?to)
+                    (and
+                        (not (VEHICLE-AT ?v ?from))
+                        (VEHICLE-AT ?v ?to)
+                        (FREE-LOCATION ?from)
+                        (FREE-LOCATION ?to)
+                    )
+                )
                 (increase (total-cost) (move-cost))
             )
     )
@@ -121,37 +108,6 @@
                 (not (VEHICLE-AT ?v ?e))
                 (FREE-LOCATION ?e)
                 (VEHICLE-READY ?v ?p)
-            )
-    )
-    
-    (:action finish-interior
-        :parameters (?v - vehicle ?e - exit ?p - program)
-        :precondition
-            (and
-                (VEHICLE-AT ?v ?e )
-                (CLEANING-DONE ?v ?p)
-                (INTERIOR-CLEAN ?v)
-            )
-        :effect
-            (and
-                (not (VEHICLE-AT ?v ?e))
-                (FREE-LOCATION ?e)
-                (VEHICLE-READY-INT ?v ?p)
-            )
-    )
-    
-    (:action interior-clean
-        :parameters (?v - vehicle ?i - interior ?p - program)
-        :precondition
-            (and
-                ;(INTERIOR ?i)
-                (VEHICLE-AT ?v ?i)
-                (CLEANING-DONE ?v ?p)
-            )
-        :effect
-            (and
-                (INTERIOR-CLEAN ?v)
-                (increase (total-cost) (interior-cost))
             )
     )
 
@@ -180,13 +136,6 @@
                         (>= (HAS-RESOURCE-LEVEL-SOAP ?s ?f) 3)
                         (>= (HAS-RESOURCE-LEVEL-WAX ?s ?c) 2)
                     )
-                    ;; Moto requirements
-                    (and 
-                        (MOTO ?v)
-                        (>= (HAS-RESOURCE-LEVEL-WATER ?s ?w) 2)
-                        (>= (HAS-RESOURCE-LEVEL-SOAP ?s ?f) 1)
-                        (>= (HAS-RESOURCE-LEVEL-WAX ?s ?c) 1)
-                    )
                 )
             )
         :effect 
@@ -205,13 +154,6 @@
                         (decrease (HAS-RESOURCE-LEVEL-WATER ?s ?w) 4)
                         (decrease (HAS-RESOURCE-LEVEL-SOAP ?s ?f) 3)
                         (decrease (HAS-RESOURCE-LEVEL-WAX ?s ?c) 2)
-                    )
-                )
-                (when (MOTO ?v)
-                    (and 
-                        (decrease (HAS-RESOURCE-LEVEL-WATER ?s ?w) 2)
-                        (decrease (HAS-RESOURCE-LEVEL-SOAP ?s ?f) 1)
-                        (decrease (HAS-RESOURCE-LEVEL-WAX ?s ?c) 1)
                     )
                 )
                 (increase (total-cost) (time-cost ?p))
@@ -240,11 +182,6 @@
                         (>= (HAS-RESOURCE-LEVEL-WATER ?s ?w) 3)
                         (>= (HAS-RESOURCE-LEVEL-SOAP ?s ?f) 2)
                     )
-                    (and
-                        (MOTO ?v)
-                        (>= (HAS-RESOURCE-LEVEL-WATER ?s ?w) 1)
-                        (>= (HAS-RESOURCE-LEVEL-SOAP ?s ?f) 1)
-                    )
                 )
             )
         :effect 
@@ -260,12 +197,6 @@
                     (and 
                         (decrease (HAS-RESOURCE-LEVEL-WATER ?s ?w) 3)
                         (decrease (HAS-RESOURCE-LEVEL-SOAP ?s ?f) 2)
-                    )
-                )
-                (when (MOTO ?v)
-                    (and 
-                        (decrease (HAS-RESOURCE-LEVEL-WATER ?s ?w) 1)
-                        (decrease (HAS-RESOURCE-LEVEL-SOAP ?s ?f) 1)
                     )
                 )
                 (increase (total-cost) (time-cost ?p))
@@ -291,11 +222,6 @@
                         (BIG-CAR ?v)
                         (>= (HAS-RESOURCE-LEVEL-WATER ?s ?w) 2)
                     )
-                    ;; Moto requirements
-                    (and
-                        (MOTO ?v)
-                        (>= (HAS-RESOURCE-LEVEL-WATER ?s ?w) 1)
-                    )
                 )
             )
         :effect 
@@ -306,9 +232,6 @@
                 )
                 (when (BIG-CAR ?v)
                     (decrease (HAS-RESOURCE-LEVEL-WATER ?s ?w) 2)
-                )
-                (when (MOTO ?v)
-                    (decrease (HAS-RESOURCE-LEVEL-WATER ?s ?w) 1)
                 )
                 (increase (total-cost) (time-cost ?p))
             )
