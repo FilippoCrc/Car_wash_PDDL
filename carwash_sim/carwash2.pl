@@ -10,7 +10,7 @@ cache(_) :- fail.
 % Fluents
 rel_fluent(car_waiting(_)).       % Car needs washing
 
-rel_fluent(station_used(_)).     %whick station is used
+rel_fluent(station_used(_)).     %which station is used
 station_number(3). %number of station
 
 stn(N) :- station_number(M), between(1, M, N). 
