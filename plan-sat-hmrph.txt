@@ -1,0 +1,90 @@
+(planutils) root@69c093536df1:/computer/input$ enhsp -o domain.pddl -f problem.pddl -planner sat-hmrph
+Domain parsed
+Problem parsed
+Grounding..
+Grounding Time: 69
+Aibr Preprocessing
+|F|:126
+|X|:8
+|A|:309
+|P|:0
+|E|:0
+H1 Setup Time (msec): 15
+ g(n)= 2.0 h(n)=83.0
+ g(n)= 8.0 h(n)=77.0
+ g(n)= 10.0 h(n)=73.0
+ g(n)= 16.0 h(n)=67.0
+ g(n)= 18.0 h(n)=61.0
+ g(n)= 21.0 h(n)=58.0
+ g(n)= 22.0 h(n)=57.0
+ g(n)= 23.0 h(n)=56.0
+ g(n)= 27.0 h(n)=52.0
+ g(n)= 30.0 h(n)=49.0
+ g(n)= 41.0 h(n)=44.0
+ g(n)= 43.0 h(n)=38.0
+ g(n)= 48.0 h(n)=33.0
+ g(n)= 49.0 h(n)=32.0
+ g(n)= 50.0 h(n)=31.0
+ g(n)= 51.0 h(n)=30.0
+ g(n)= 52.0 h(n)=29.0
+ g(n)= 53.0 h(n)=28.0
+ g(n)= 55.0 h(n)=26.0
+ g(n)= 64.0 h(n)=17.0
+ g(n)= 66.0 h(n)=15.0
+ g(n)= 68.0 h(n)=13.0
+ g(n)= 71.0 h(n)=10.0
+ g(n)= 73.0 h(n)=8.0
+ g(n)= 75.0 h(n)=6.0
+ g(n)= 77.0 h(n)=4.0
+ g(n)= 79.0 h(n)=2.0
+ g(n)= 81.0 h(n)=0.0
+Problem Solved
+
+Found Plan:
+0.0: (move car2 entrance1 station4)
+1.0: (start-basic-cleaning car2 station4 basic1 water1 soap1)
+2.0: (move moto1 entrance1 station2)
+3.0: (start-basic-cleaning moto1 station2 basic1 water1 soap1)
+4.0: (move moto2 entrance1 station3)
+5.0: (start-fast-cleaning moto2 station3 fast1 water1)
+6.0: (refill-soap station1 soap1)
+7.0: (refill-wax station1 wax1)
+8.0: (move moto2 station3 exit1)
+9.0: (move car3 entrance1 station3)
+10.0: (start-fast-cleaning car3 station3 fast1 water1)
+11.0: (move car1 entrance1 station1)
+12.0: (start-premium-cleaning car1 station1 premium1 water1 soap1 wax1)
+13.0: (move car1 station1 interior1)
+14.0: (interior-clean car1 interior1 premium1)
+15.0: (refill-water station1 water1)
+16.0: (refill-water station1 water1)
+17.0: (refill-soap station1 soap1)
+18.0: (refill-soap station1 soap1)
+19.0: (refill-wax station1 wax1)
+20.0: (finish moto2 exit1 fast1)
+21.0: (move big_car1 entrance1 station1)
+22.0: (start-premium-cleaning big_car1 station1 premium1 water1 soap1 wax1)
+23.0: (move moto1 station2 exit1)
+24.0: (move big_car2 entrance1 station2)
+25.0: (start-fast-cleaning big_car2 station2 fast1 water1)
+26.0: (finish moto1 exit1 basic1)
+27.0: (move car1 interior1 exit1)
+28.0: (finish-interior car1 exit1 premium1)
+29.0: (move car2 station4 exit1)
+30.0: (finish car2 exit1 basic1)
+31.0: (move car3 station3 exit1)
+32.0: (finish car3 exit1 fast1)
+33.0: (move big_car1 station1 exit1)
+34.0: (finish big_car1 exit1 premium1)
+35.0: (move big_car2 station2 exit1)
+36.0: (finish big_car2 exit1 fast1)
+
+Plan-Length:37
+Metric (Search):81.0
+Planning Time (msec): 289
+Heuristic Time (msec): 202
+Search Time (msec): 285
+Expanded Nodes:51
+States Evaluated:262
+Number of Dead-Ends detected:2
+Number of Duplicates detected:22
