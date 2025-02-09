@@ -85,6 +85,8 @@
 
         (STATION-COMPATIBILITY basic1 station2)
         (STATION-COMPATIBILITY fast1 station2)
+        
+        (EXIT exit1)
 
 
     )

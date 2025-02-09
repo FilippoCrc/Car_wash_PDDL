@@ -158,7 +158,7 @@
             (VEHICLE-READY-INT car1 premium1)
             (VEHICLE-READY car2 basic1)
             (VEHICLE-READY car3 fast1)
-            ;(VEHICLE-READY-INT big_car1 premium1)
+            (VEHICLE-READY big_car1 premium1)
             (VEHICLE-READY big_car1 premium1)
             (VEHICLE-READY big_car2 fast1)
             (VEHICLE-READY moto1 basic1)
