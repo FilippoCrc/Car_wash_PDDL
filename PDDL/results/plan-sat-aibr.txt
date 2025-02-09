@@ -1,0 +1,29 @@
+(planutils) root@69c093536df1:/computer/input$ enhsp -o domain.pddl -f problem.pddl -planner sat-aibr
+Domain parsed
+Problem parsed
+Grounding..
+Grounding Time: 59
+Aibr Preprocessing
+|F|:126
+|X|:8
+|A|:309
+|P|:0
+|E|:0
+AIBR selected
+f(n) = 289.0 (Expanded Nodes: 1, Evaluated States: 1, Time: 0.031) Frontier Size: 0
+-------------Time: 10s ; Expanded Nodes: 360 (Avg-Speed 36.0 n/s); Evaluated States: 7439
+-------------Time: 20s ; Expanded Nodes: 775 (Avg-Speed 38.0 n/s); Evaluated States: 15463
+-------------Time: 30s ; Expanded Nodes: 1189 (Avg-Speed 39.0 n/s); Evaluated States: 22832
+-------------Time: 40s ; Expanded Nodes: 1600 (Avg-Speed 40.0 n/s); Evaluated States: 30979
+-------------Time: 50s ; Expanded Nodes: 2023 (Avg-Speed 40.0 n/s); Evaluated States: 39055
+-------------Time: 60s ; Expanded Nodes: 2470 (Avg-Speed 41.0 n/s); Evaluated States: 47082
+-------------Time: 70s ; Expanded Nodes: 2950 (Avg-Speed 42.0 n/s); Evaluated States: 55110
+-------------Time: 80s ; Expanded Nodes: 3384 (Avg-Speed 42.0 n/s); Evaluated States: 63272
+-------------Time: 90s ; Expanded Nodes: 3813 (Avg-Speed 42.0 n/s); Evaluated States: 71358
+-------------Time: 100s ; Expanded Nodes: 4246 (Avg-Speed 42.0 n/s); Evaluated States: 79411
+-------------Time: 110s ; Expanded Nodes: 4683 (Avg-Speed 42.0 n/s); Evaluated States: 87563
+-------------Time: 120s ; Expanded Nodes: 5120 (Avg-Speed 42.0 n/s); Evaluated States: 95604
+-------------Time: 130s ; Expanded Nodes: 5571 (Avg-Speed 42.0 n/s); Evaluated States: 103432
+-------------Time: 140s ; Expanded Nodes: 6020 (Avg-Speed 43.0 n/s); Evaluated States: 111401
+-------------Time: 150s ; Expanded Nodes: 6491 (Avg-Speed 43.0 n/s); Evaluated States: 119255
+^C
